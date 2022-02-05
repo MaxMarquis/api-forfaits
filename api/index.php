@@ -42,46 +42,81 @@
         $requete->close();
       } 
       break; 
-    case 'POST': // GESTION DES DEMANDES DE TYPE POST 
-      // CODE PERMETTANT DE D'AJOUTER UN ENREGISTREMENT 
-      $dataJSON = file_get_contents('php://input'); 
-      $data = json_decode($dataJSON, TRUE);
+    case 'POST':  // GESTION DES DEMANDES DE TYPE POST
+      $reponse = new stdClass();
+      $reponse->message = "Ajout d'un forfait voyage: ";
+      
+      $corpsJSON = file_get_contents('php://input');
+      $data = json_decode($corpsJSON, TRUE); 
+    
+      $destination = $data['destination'];
+      $villeDepart = $data['villeDepart'];
 
-      $reponse = new stdClass(); 
-      $reponse->message = "Ajout du produit: "; 
+      $nom = $data['hotel']['nom'];
+      $coordonnees = $data['hotel']['coordonnees'];
+      $nombreEtoiles = $data['hotel']['nombreEtoiles'];
+      $nombreChambres = $data['hotel']['nombreChambres'];
+      $caracteristiques_str = $data['hotel']['caracteristiques'];
 
-      if(isset($data['nom']) && isset($data['description']) && isset($data['prix']) && isset($data['qteStock'])) {
-
-        if ($requete = $mysqli->prepare("INSERT INTO produits(nom, description, prix, qteStock) VALUES(?, ?, ?, ?)")) { 
-          $requete->bind_param("ssii", $data['nom'], $data['description'],$data['prix'],$data['qteStock']); 
-          if($requete->execute()) { 
-            $reponse->message .= "Succès"; 
-          } else { 
-            $reponse->message .= "Erreur dans l'exécution de la requête"; 
+      $dateDepart = $data['dateDepart'];
+      $dateRetour = $data['dateRetour'];
+      $prix = $data['prix'];
+      $rabais = $data['rabais'];
+      $vedette = $data['vedette'];
+    
+      if(isset($destination) && isset($villeDepart) && isset($nom) && isset($coordonnees) && isset($nombreEtoiles) && isset($nombreChambres) && isset($caracteristiques_str) && isset($dateDepart) && isset($dateRetour) && isset($prix) && isset($rabais) && isset($vedette)) {
+        $caracteristiques = implode(';', $caracteristiques_str);
+        
+        if ($requete = $mysqli->prepare("INSERT INTO forfaits (destination, villeDepart, nom, coordonnees, nombreEtoiles, nombreChambres, caracteristiques, dateDepart, dateRetour, prix, rabais, vedette) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);")) {      
+          $requete->bind_param("ssssiisssiii", $destination, $villeDepart, $nom, $coordonnees, $nombreEtoiles, $nombreChambres, $caracteristiques, $dateDepart, $dateRetour, $prix, $rabais, $vedette);
+    
+            if($requete->execute()) { 
+              $reponse->message .= "Ajout terminé avec succès";  
+            } else {
+              $reponse->message .=  "Erreur dans l'exécution de la requête";  
+            }
+    
+            $requete->close(); 
+          } else  {
+            $reponse->message .=  "Erreur dans la préparation de la requête";  
           } 
-          $requete->close();
-        } else { 
-          $reponse->message .= "Erreur dans la préparation de la requête"; 
-        } 
-      } else { 
-        $reponse->message .= "Erreur dans le corps de l'objet fourni"; 
-      } 
+        } else {
+        $reponse->message .=  "Erreur dans le corps de l'objet fourni";  
+      }
       echo json_encode($reponse, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-      break; 
+      
+      break;
     case 'PUT': // GESTION DES DEMANDES DE TYPE PUT 
       // CODE PERMETTANT DE METTRE À JOUR L'ENREGISTREMENT CORRESPONDANT À L'IDENTIFIANT PASSÉ EN PARAMÈTRE 
-      $reponse = new stdClass(); 
-      $reponse->message = "Édition du client: "; 
+      $reponse = new stdClass();
+      $reponse->message = "Édition d'un forfait voyage: ";
+      
+      $corpsJSON = file_get_contents('php://input');
+      $data = json_decode($corpsJSON, TRUE); 
+    
+      $destination = $data['destination'];
+      $villeDepart = $data['villeDepart'];
 
-      $dataJSON = file_get_contents('php://input'); 
-      $data = json_decode($dataJSON, TRUE); 
+      $nom = $data['hotel']['nom'];
+      $coordonnees = $data['hotel']['coordonnees'];
+      $nombreEtoiles = $data['hotel']['nombreEtoiles'];
+      $nombreChambres = $data['hotel']['nombreChambres'];
+      $caracteristiques_str = $data['hotel']['caracteristiques'];
 
+      $dateDepart = $data['dateDepart'];
+      $dateRetour = $data['dateRetour'];
+      $prix = $data['prix'];
+      $rabais = $data['rabais'];
+      $vedette = $data['vedette'];
+    
       if(isset($_GET['id'])) { 
-        if(isset($data['nom']) && isset($data['description']) && isset($data['prix']) && isset($data['qteStock'])) { 
-          if ($requete = $mysqli->prepare("UPDATE produits SET nom=?, description=?, prix=?, qteStock=? WHERE id=?")) {
-            $requete->bind_param("ssiii", $data['nom'], $data['description'],$data['prix'], $data['qteStock'], $_GET['id']); 
+        if(isset($destination) && isset($villeDepart) && isset($nom) && isset($coordonnees) && isset($nombreEtoiles) && isset($nombreChambres) && isset($caracteristiques_str) && isset($dateDepart) && isset($dateRetour) && isset($prix) && isset($rabais) && isset($vedette)) {
+        $caracteristiques = implode(';', $caracteristiques_str);
+        
+        if ($requete = $mysqli->prepare("UPDATE forfaits SET destination=?, villeDepart=?, nom=?, coordonnees=?, nombreEtoiles=?, nombreChambres=?, caracteristiques=?, dateDepart=?, dateRetour=?, prix=?, rabais=?, vedette=? WHERE id=?")) {      
+          $requete->bind_param("ssssiisssiiii", $destination, $villeDepart, $nom, $coordonnees, $nombreEtoiles, $nombreChambres, $caracteristiques, $dateDepart, $dateRetour, $prix, $rabais, $vedette, $_GET['id']);
             if($requete->execute()) { 
-              $reponse->message .= "Succès"; 
+              $reponse->message .= "Édition terminé avec succès"; 
             } else { 
               $reponse->message .= "Erreur dans l'exécution de la requête"; 
             } 
@@ -99,14 +134,14 @@
       break; 
     case 'DELETE': // GESTION DES DEMANDES DE TYPE DELETE 
       $reponse = new stdClass(); 
-      $reponse->message = "Suppression du client: ";
+      $reponse->message = "Suppression du forfait: ";
 
       if(isset($_GET['id'])) { 
         // CODE PERMETTANT DE SUPPRIMER L'ENREGISTREMENT CORRESPONDANT À L'IDENTIFIANT PASSÉ EN PARAMÈTRE 
-        if ($requete = $mysqli->prepare("DELETE FROM produits WHERE id=?")) { 
+        if ($requete = $mysqli->prepare("DELETE FROM forfaits WHERE id=?")) { 
           $requete->bind_param("i", $_GET['id']); 
           if($requete->execute()) { 
-            $reponse->message .= "Succès"; 
+            $reponse->message .= "Suppression terminé avec succès"; 
           } else { 
             $reponse->message .= "Erreur dans l'exécution de la requête"; 
           } 
