@@ -1,8 +1,8 @@
 <?php 
-    $username="maxmarhusernews";
-    $password="NQMfhLaXvym4VTn";
-    $host="maxmarhusernews.mysql.db";
-    $database="maxmarhusernews";
+    $username="root";
+    $password="mysql";
+    $host="localhost";
+    $database="projet-2-forfaits";
 
     $debug= true;
 ?>
